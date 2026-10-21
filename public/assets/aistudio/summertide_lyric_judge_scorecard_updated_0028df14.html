@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Summertide Studio — Lyric Contest Judge Scorecard</title>
+<style>
+  :root {
+    color-scheme: light;
+    --ink: #20242d;
+    --muted: #687080;
+    --line: #e4e7ec;
+    --paper: #ffffff;
+    --canvas: #f5f6f8;
+    --accent: #426b63;
+    --accent-dark: #2e514a;
+    --soft: #eaf2ef;
+    --gold: #c28c3b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--canvas); color: var(--ink);
+    font: 16px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  .wrap { width: min(900px, calc(100% - 32px)); margin: 36px auto 56px; }
+  header { margin-bottom: 24px; }
+  .eyebrow { color: var(--accent); font-weight: 800; letter-spacing: .12em; text-transform: uppercase; font-size: .75rem; }
+  h1 { font-size: clamp(1.8rem, 5vw, 2.65rem); line-height: 1.12; letter-spacing: -.04em; margin: 8px 0 10px; }
+  .intro { color: var(--muted); max-width: 660px; margin: 0; }
+  .panel { background: var(--paper); border: 1px solid var(--line); border-radius: 18px; padding: clamp(18px, 4vw, 28px); box-shadow: 0 8px 28px rgba(24,32,40,.04); }
+  .meta { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 22px; }
+  label.field { display: block; color: var(--muted); font-size: .82rem; font-weight: 700; }
+  input[type="text"], textarea { display: block; width: 100%; margin-top: 6px; padding: 12px 13px; border: 1px solid var(--line); border-radius: 10px; background: white; color: var(--ink); font: inherit; outline-color: var(--accent); }
+  textarea { min-height: 115px; resize: vertical; }
+  .section-title { display:flex; justify-content:space-between; align-items:center; gap: 12px; margin: 22px 0 4px; }
+  h2 { font-size: 1.05rem; margin: 0; }
+  .hint { color: var(--muted); font-size: .82rem; margin: 4px 0 18px; }
+  .criterion { padding: 18px 0; border-top: 1px solid var(--line); }
+  .criterion-head { display:flex; align-items:flex-start; justify-content:space-between; gap: 12px; }
+  .criterion h3 { margin:0; font-size: 1rem; }
+  .criterion p { margin: 5px 0 0; color:var(--muted); font-size:.9rem; }
+  .score { min-width: 76px; text-align:right; font-size:1.25rem; font-weight:800; font-variant-numeric: tabular-nums; }
+  .score small { color:var(--muted); font-size:.78rem; font-weight:600; }
+  input[type="range"] { width:100%; margin: 20px 0 4px; accent-color:var(--accent); cursor:pointer; }
+  .ticks { display:flex; justify-content:space-between; color:var(--muted); font-size:.75rem; }
+  .tier { margin-top: 12px; display:inline-flex; align-items:center; gap:7px; border-radius:999px; background:var(--soft); color:var(--accent-dark); padding:5px 10px; font-size:.77rem; font-weight:800; }
+  .tier-dot { width:7px; height:7px; background:currentColor; border-radius:50%; }
+  .summary { margin-top: 24px; padding: 22px; border-radius: 14px; background:#202b31; color:white; }
+  .summary-top { display:flex; align-items:flex-end; justify-content:space-between; gap:16px; }
+  .total-label { color:#c7d2d5; font-size:.85rem; }
+  .total { font-size:clamp(2.4rem, 8vw, 3.6rem); font-weight:850; line-height:1.1; letter-spacing:-.04em; font-variant-numeric:tabular-nums; }
+  .total span { color:#c7d2d5; font-size:1.1rem; font-weight:600; letter-spacing:0; }
+  .average { text-align:right; color:#d4dddf; font-size:.82rem; }
+  .average strong { display:block; font-size:1.25rem; color:white; }
+  .meter { height:8px; border-radius:999px; background:#465257; overflow:hidden; margin:18px 0 8px; }
+  .meter-fill { width:72%; height:100%; background:#9ec6b9; border-radius:999px; transition:width .15s ease; }
+  .scale { margin-top:24px; }
+  .scale h2 { margin-bottom:12px; }
+  .scale-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+  .scale-card { padding:12px; border:1px solid var(--line); border-radius:11px; }
+  .scale-card strong { display:block; font-size:.9rem; }
+  .scale-card span { color:var(--muted); font-size:.8rem; }
+  .scale-card:last-child { grid-column:1 / -1; }
+  .note { margin-top:16px; padding:12px 14px; border-left:3px solid var(--gold); background:#fbf7ef; color:#5e4a2f; font-size:.85rem; border-radius:0 8px 8px 0; }
+  .actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; }
+  button { border:1px solid var(--line); border-radius:10px; padding:11px 15px; background:white; color:var(--ink); font:inherit; font-weight:750; cursor:pointer; }
+  button.primary { background:var(--accent); color:white; border-color:var(--accent); }
+  button:hover { filter:brightness(.97); }
+  .status { min-height:1.3em; margin-top:10px; color:var(--muted); font-size:.82rem; }
+  footer { margin-top:18px; color:var(--muted); text-align:center; font-size:.8rem; }
+  @media (max-width:560px) {
+    .wrap { margin-top:22px; }
+    .meta { grid-template-columns:1fr; }
+    .scale-grid { grid-template-columns:1fr; }
+    .scale-card:last-child { grid-column:auto; }
+    .summary-top { align-items:flex-start; }
+  }
+  @media print {
+    body { background:white; }
+    .wrap { width:100%; margin:0; }
+    .panel { box-shadow:none; }
+    .actions, .status, input[type="range"], footer { display:none; }
+  }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <div class="eyebrow">Summertide Studio · Producer Panel</div>
+    <h1>Lyric Contest<br>Judge Scorecard</h1>
+    <p class="intro">Score each eligible submission across four criteria. Adjust the sliders to calculate the total instantly. Each criterion is worth up to 25 points, but 24 is the highest score a judge may award.</p>
+  </header>
+
+  <section class="panel" aria-label="Judge scorecard">
+    <div class="meta">
+      <label class="field">Judge / Producer
+        <input id="judge" type="text" placeholder="Enter judge name">
+      </label>
+      <label class="field">Entrant / Submission
+        <input id="entrant" type="text" placeholder="Enter entrant or song title">
+      </label>
+    </div>
+
+    <label class="field" style="display:block;margin-bottom:22px">Personal Opinion / Judge's Comments <span style="font-weight:500">(optional)</span>
+      <textarea id="opinion" placeholder="Share any additional thoughts, feedback, or impressions about this submission…"></textarea>
+    </label>
+
+    <div class="section-title"><h2>Scoring criteria</h2><span class="hint" style="margin:0">Awardable range: 1–24 each</span></div>
+    <p class="hint">Choose the score that best reflects the submission for each criterion.</p>
+
+    <div class="criterion" data-key="writing">
+      <div class="criterion-head">
+        <div><h3>1. Writing Quality</h3><p>Vocabulary, phrasing, spacing, clarity, and readability.</p></div>
+        <div class="score"><span id="writing-value">18</span><small> / 25</small></div>
+      </div>
+      <input id="writing" aria-label="Writing Quality score" type="range" min="1" max="24" value="18">
+      <div class="ticks"><span>1 · Poor</span><span>12 · Competent</span><span>24 · Exceptional</span></div>
+      <div class="tier" id="writing-tier"><span class="tier-dot"></span><span>Strong</span></div>
+    </div>
+
+    <div class="criterion" data-key="originality">
+      <div class="criterion-head">
+        <div><h3>2. Originality &amp; Creativity</h3><p>Distinctive ideas, imagery, wordplay, and creative rhymes.</p></div>
+        <div class="score"><span id="originality-value">18</span><small> / 25</small></div>
+      </div>
+      <input id="originality" aria-label="Originality and Creativity score" type="range" min="1" max="24" value="18">
+      <div class="ticks"><span>1 · Poor</span><span>12 · Competent</span><span>24 · Exceptional</span></div>
+      <div class="tier" id="originality-tier"><span class="tier-dot"></span><span>Strong</span></div>
+    </div>
+
+    <div class="criterion" data-key="emotion">
+      <div class="criterion-head">
+        <div><h3>3. Emotional Impact &amp; Storytelling</h3><p>Emotional resonance, narrative clarity, depth, and engagement.</p></div>
+        <div class="score"><span id="emotion-value">18</span><small> / 25</small></div>
+      </div>
+      <input id="emotion" aria-label="Emotional Impact and Storytelling score" type="range" min="1" max="24" value="18">
+      <div class="ticks"><span>1 · Poor</span><span>12 · Competent</span><span>24 · Exceptional</span></div>
+      <div class="tier" id="emotion-tier"><span class="tier-dot"></span><span>Strong</span></div>
+    </div>
+
+    <div class="criterion" data-key="structure">
+      <div class="criterion-head">
+        <div><h3>4. Structure &amp; Cohesion</h3><p>Section transitions, progression, consistency, and unity.</p></div>
+        <div class="score"><span id="structure-value">18</span><small> / 25</small></div>
+      </div>
+      <input id="structure" aria-label="Structure and Cohesion score" type="range" min="1" max="24" value="18">
+      <div class="ticks"><span>1 · Poor</span><span>12 · Competent</span><span>24 · Exceptional</span></div>
+      <div class="tier" id="structure-tier"><span class="tier-dot"></span><span>Strong</span></div>
+    </div>
+
+    <div class="summary" aria-live="polite">
+      <div class="summary-top">
+        <div><div class="total-label">TOTAL JUDGE SCORE</div><div class="total"><span id="total">72</span><span> / 100</span></div></div>
+        <div class="average">Average per criterion<strong id="average">18.00 / 25</strong></div>
+      </div>
+      <div class="meter"><div class="meter-fill" id="meter-fill"></div></div>
+      <div class="total-label" id="summary-label">A solid, strong submission — room remains to stand out.</div>
+    </div>
+
+    <div class="scale">
+      <h2>Quick scale guide</h2>
+      <div class="scale-grid">
+        <div class="scale-card"><strong>1–5 · Poor</strong><span>Major weaknesses; criterion barely fulfilled.</span></div>
+        <div class="scale-card"><strong>6–10 · Below Standard</strong><span>Some merit, but significant weaknesses remain.</span></div>
+        <div class="scale-card"><strong>11–15 · Competent</strong><span>Meets basic expectations; generally satisfactory.</span></div>
+        <div class="scale-card"><strong>16–20 · Strong</strong><span>Skilled, thoughtful execution with minor weaknesses.</span></div>
+        <div class="scale-card"><strong>21–24 · Exceptional</strong><span>Outstanding execution; distinctive and close to mastery.</span></div>
+      </div>
+      <div class="note"><strong>Reserved maximum:</strong> 25 is the theoretical ceiling only. Do not award 25; 24 is the highest permitted score for any criterion.</div>
+    </div>
+
+    <div class="actions">
+      <button class="primary" id="export">Export scorecard (.txt)</button>
+      <button id="print">Print / Save as PDF</button>
+      <button id="reset">Reset scores</button>
+    </div>
+    <div class="status" id="status" role="status"></div>
+  </section>
+  <footer>Independent judging · Four criteria · Maximum awardable total: 96/100 per judge</footer>
+</main>
+<script>
+const ids = ["writing", "originality", "emotion", "structure"];
+const tierFor = n => n <= 5 ? "Poor" : n <= 10 ? "Below Standard" : n <= 15 ? "Competent" : n <= 20 ? "Strong" : "Exceptional";
+const summaryFor = n => n <= 20 ? "This entry needs substantial development across the criteria."
+  : n <= 40 ? "Some promising elements, but significant weaknesses remain."
+  : n <= 60 ? "A competent entry that meets many basic expectations."
+  : n <= 80 ? "A strong entry with clear skill and thoughtful execution."
+  : n <= 91 ? "An outstanding entry with many exceptional qualities."
+  : "Exceptional across the board — near the highest awardable score.";
+function update() {
+  let total = 0;
+  ids.forEach(id => {
+    const n = Number(document.getElementById(id).value);
+    total += n;
+    document.getElementById(id + "-value").textContent = n;
+    document.querySelector("#" + id + "-tier span:last-child").textContent = tierFor(n);
+  });
+  document.getElementById("total").textContent = total;
+  document.getElementById("average").textContent = (total / 4).toFixed(2) + " / 25";
+  document.getElementById("meter-fill").style.width = total + "%";
+  document.getElementById("summary-label").textContent = summaryFor(total);
+}
+ids.forEach(id => document.getElementById(id).addEventListener("input", update));
+document.getElementById("reset").addEventListener("click", () => {
+  ids.forEach(id => document.getElementById(id).value = 18);
+  document.getElementById("status").textContent = "Scores reset to 18.";
+  update();
+});
+document.getElementById("print").addEventListener("click", () => window.print());
+document.getElementById("export").addEventListener("click", () => {
+  const judge = document.getElementById("judge").value.trim() || "Not provided";
+  const entrant = document.getElementById("entrant").value.trim() || "Not provided";
+  const lines = [
+    "SUMMERTIDE STUDIO — LYRIC CONTEST JUDGE SCORECARD",
+    "Judge / Producer: " + judge,
+    "Entrant / Submission: " + entrant,
+    "Personal Opinion / Judge's Comments:",
+    document.getElementById("opinion").value.trim() || "None provided",
+    "",
+    ...ids.map((id, i) => `${i + 1}. ${({
+      writing:"Writing Quality",
+      originality:"Originality & Creativity",
+      emotion:"Emotional Impact & Storytelling",
+      structure:"Structure & Cohesion"
+    })[id]}: ${document.getElementById(id).value}/25 — ${tierFor(Number(document.getElementById(id).value))}`),
+    "",
+    "TOTAL: " + document.getElementById("total").textContent + "/100",
+    "AVERAGE PER CRITERION: " + document.getElementById("average").textContent
+  ];
+  const blob = new Blob([lines.join("\n")], {type:"text/plain;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "summertide-lyric-judge-scorecard.txt"; a.click();
+  URL.revokeObjectURL(url);
+  document.getElementById("status").textContent = "Scorecard exported.";
+});
+update();
+</script>
+</body>
+</html>
