@@ -27,7 +27,6 @@ import {
 import {
   calculateRankings,
   computeSummaryStats,
-  SAMPLE_CONTEST_SCORES,
 } from './utils/ranking';
 import { Navbar } from './components/Navbar';
 import { LeaderboardView } from './components/LeaderboardView';
@@ -53,8 +52,8 @@ export default function App() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [isSyncingRankings, setIsSyncingRankings] = useState(false);
 
-  // Contest Scores & Pre-populated Data
-  const [scores, setScores] = useState<JudgeScoreSubmission[]>(SAMPLE_CONTEST_SCORES);
+  // Contest Scores (starts fresh with no fake/placeholder entries)
+  const [scores, setScores] = useState<JudgeScoreSubmission[]>([]);
   const [scorecardEntrantPreFill, setScorecardEntrantPreFill] = useState('');
 
   // Toast Notification
@@ -356,62 +355,9 @@ export default function App() {
     });
   };
 
-  // Seed sample data to connected sheet
-  const handleSeedSampleDataToSheet = () => {
-    if (!connectedSheet) return;
-
-    setConfirmModal({
-      isOpen: true,
-      title: 'Populate Google Sheet with Contest Sample Data?',
-      message: `This will write 11 sample scorecards across 5 diverse songs into your Google Sheet's "${rawSheetTitle}" tab and automatically compute and save the Final Rankings tab.`,
-      detailItems: [
-        '5 sample lyric submissions (Golden Hour Glow, Saltwater & Cedar, etc.)',
-        '3 judges (Elena Rostova, Marcus Sterling, Sarah Chen)',
-        'Full 4-criteria rubrics, tiers, and comments',
-      ],
-      confirmLabel: 'Push Sample Data',
-      isDestructive: false,
-      action: async () => {
-        const currentToken = await ensureToken();
-        if (!currentToken) return;
-
-        setIsSyncing(true);
-        try {
-          // Append sample rows sequentially
-          for (const s of SAMPLE_CONTEST_SCORES) {
-            await appendScoreToSheet(currentToken, connectedSheet.id, rawSheetTitle, s);
-          }
-          // Compute & write final rankings
-          const sampleRankings = calculateRankings(SAMPLE_CONTEST_SCORES);
-          await writeRankingsToSheet(
-            currentToken,
-            connectedSheet.id,
-            'Final Rankings',
-            sampleRankings
-          );
-
-          setScores(SAMPLE_CONTEST_SCORES);
-          showToast('Sample scores & calculated rankings pushed to Google Sheet!', 'success');
-        } catch (err: unknown) {
-          const msg = err instanceof Error ? err.message : 'Failed to seed sample data';
-          console.error('Seed error:', err);
-          showToast(msg, 'error');
-        } finally {
-          setIsSyncing(false);
-          setConfirmModal((prev) => ({ ...prev, isOpen: false }));
-        }
-      },
-    });
-  };
-
   const handleOpenScorecardForEntrant = (name: string) => {
     setScorecardEntrantPreFill(name);
     setActiveTab('scorecard');
-  };
-
-  const handleLoadLocalSampleData = () => {
-    setScores(SAMPLE_CONTEST_SCORES);
-    showToast('Loaded sample contest scorecards into session.', 'info');
   };
 
   return (
@@ -442,7 +388,8 @@ export default function App() {
             onRefreshFromSheet={handleRefreshFromSheet}
             isRefreshing={isSyncing}
             onOpenScorecardForEntrant={handleOpenScorecardForEntrant}
-            onLoadSampleData={handleLoadLocalSampleData}
+            onGoToScorecard={() => setActiveTab('scorecard')}
+            onGoToSheet={() => setActiveTab('sheet')}
           />
         )}
 
@@ -450,13 +397,14 @@ export default function App() {
           <AllScoresMatrix
             scores={scores}
             onOpenScorecardForEntrant={handleOpenScorecardForEntrant}
-            onLoadSampleData={handleLoadLocalSampleData}
+            onGoToScorecard={() => setActiveTab('scorecard')}
           />
         )}
 
         {activeTab === 'scorecard' && (
           <ScorecardView
             initialEntrantName={scorecardEntrantPreFill}
+            defaultJudgeName={user?.displayName || ''}
             connectedSheet={connectedSheet}
             onSubmitScore={handleSubmitScore}
             isSubmitting={isSyncing}
@@ -475,7 +423,6 @@ export default function App() {
             onCreateNewSheet={handleCreateNewSheet}
             onDisconnectSheet={handleDisconnectSheet}
             onRefreshFromSheet={handleRefreshFromSheet}
-            onSeedSampleDataToSheet={handleSeedSampleDataToSheet}
             isProcessing={isSyncing}
             rawSheetTitle={rawSheetTitle}
             setRawSheetTitle={setRawSheetTitle}

@@ -19,13 +19,13 @@ import { JudgeScoreSubmission, getTier } from '../types/contest';
 interface AllScoresMatrixProps {
   scores: JudgeScoreSubmission[];
   onOpenScorecardForEntrant: (entrantName: string) => void;
-  onLoadSampleData: () => void;
+  onGoToScorecard?: () => void;
 }
 
 export const AllScoresMatrix: React.FC<AllScoresMatrixProps> = ({
   scores,
   onOpenScorecardForEntrant,
-  onLoadSampleData,
+  onGoToScorecard,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedJudge, setSelectedJudge] = useState<string>('all');
@@ -187,17 +187,19 @@ export const AllScoresMatrix: React.FC<AllScoresMatrixProps> = ({
           <AlertCircle className="w-12 h-12 text-stone-300 mx-auto mb-3" />
           <h3 className="text-base font-bold text-stone-800">No judge scores recorded yet</h3>
           <p className="text-sm text-stone-500 max-w-md mx-auto mt-1">
-            Load sample contest data to see the cross-judge matrix, or start entering scores in the
+            Connect your Google Sheet to pull your judges' scores, or start entering scores in the
             Judge Scorecard.
           </p>
-          <div className="mt-5">
-            <button
-              onClick={onLoadSampleData}
-              className="px-4 py-2 bg-[#2e514a] text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs hover:bg-[#23403a] transition-all cursor-pointer"
-            >
-              Load Sample Contest Data
-            </button>
-          </div>
+          {onGoToScorecard && (
+            <div className="mt-5">
+              <button
+                onClick={onGoToScorecard}
+                className="px-4 py-2 bg-[#2e514a] text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs hover:bg-[#23403a] transition-all cursor-pointer"
+              >
+                + Go to Judge Scorecard
+              </button>
+            </div>
+          )}
         </div>
       ) : viewMode === 'matrix' ? (
         /* Cross Matrix View */

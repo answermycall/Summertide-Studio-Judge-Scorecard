@@ -25,7 +25,6 @@ interface SheetSettingsViewProps {
   onCreateNewSheet: (title?: string) => Promise<boolean>;
   onDisconnectSheet: () => void;
   onRefreshFromSheet: () => void;
-  onSeedSampleDataToSheet: () => void;
   isProcessing: boolean;
   rawSheetTitle: string;
   setRawSheetTitle: (title: string) => void;
@@ -40,7 +39,6 @@ export const SheetSettingsView: React.FC<SheetSettingsViewProps> = ({
   onCreateNewSheet,
   onDisconnectSheet,
   onRefreshFromSheet,
-  onSeedSampleDataToSheet,
   isProcessing,
   rawSheetTitle,
   setRawSheetTitle,
@@ -226,25 +224,6 @@ export const SheetSettingsView: React.FC<SheetSettingsViewProps> = ({
                 The tab where judge score entries are read from and added to.
               </p>
             </div>
-          </div>
-
-          {/* Seed Sample Data Action */}
-          <div className="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div>
-              <div className="font-bold text-emerald-950 text-xs sm:text-sm">
-                Populate with Summertide Sample Data?
-              </div>
-              <div className="text-[11px] text-emerald-800">
-                Writes 11 demo scores across 5 songs and 3 judges to your Google Sheet to test the live rankings calculation.
-              </div>
-            </div>
-            <button
-              onClick={onSeedSampleDataToSheet}
-              disabled={isProcessing}
-              className="px-4 py-2 bg-emerald-800 hover:bg-emerald-900 text-white rounded-xl text-xs font-bold transition-all shadow-2xs shrink-0 cursor-pointer"
-            >
-              {isProcessing ? 'Writing...' : 'Push Sample Data to Sheet'}
-            </button>
           </div>
         </div>
       ) : (

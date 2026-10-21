@@ -21,6 +21,7 @@ import { SpreadsheetInfo } from '../services/sheets';
 
 interface ScorecardViewProps {
   initialEntrantName?: string;
+  defaultJudgeName?: string;
   connectedSheet: SpreadsheetInfo | null;
   onSubmitScore: (score: JudgeScoreSubmission) => Promise<boolean>;
   isSubmitting: boolean;
@@ -30,13 +31,14 @@ interface ScorecardViewProps {
 
 export const ScorecardView: React.FC<ScorecardViewProps> = ({
   initialEntrantName = '',
+  defaultJudgeName = '',
   connectedSheet,
   onSubmitScore,
   isSubmitting,
   knownJudges,
   knownEntrants,
 }) => {
-  const [judgeName, setJudgeName] = useState('Elena Rostova');
+  const [judgeName, setJudgeName] = useState(defaultJudgeName || '');
   const [entrantName, setEntrantName] = useState(initialEntrantName || '');
   const [comments, setComments] = useState('');
 
@@ -202,7 +204,7 @@ export const ScorecardView: React.FC<ScorecardViewProps> = ({
               list="known-judges-list"
               value={judgeName}
               onChange={(e) => setJudgeName(e.target.value)}
-              placeholder="e.g. Elena Rostova"
+              placeholder="Enter judge or producer name"
               className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-stone-900 font-medium text-sm focus:outline-hidden focus:ring-2 focus:ring-[#426b63] focus:border-transparent transition-all"
               required
             />
@@ -222,7 +224,7 @@ export const ScorecardView: React.FC<ScorecardViewProps> = ({
               list="known-entrants-list"
               value={entrantName}
               onChange={(e) => setEntrantName(e.target.value)}
-              placeholder="e.g. Golden Hour Glow — Clara Vance"
+              placeholder="Enter entrant or song title"
               className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-stone-900 font-medium text-sm focus:outline-hidden focus:ring-2 focus:ring-[#426b63] focus:border-transparent transition-all"
               required
             />

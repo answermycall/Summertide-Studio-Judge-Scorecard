@@ -28,7 +28,8 @@ interface LeaderboardViewProps {
   onRefreshFromSheet: () => void;
   isRefreshing: boolean;
   onOpenScorecardForEntrant?: (entrantName: string) => void;
-  onLoadSampleData: () => void;
+  onGoToScorecard?: () => void;
+  onGoToSheet?: () => void;
 }
 
 export const LeaderboardView: React.FC<LeaderboardViewProps> = ({
@@ -40,7 +41,8 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({
   onRefreshFromSheet,
   isRefreshing,
   onOpenScorecardForEntrant,
-  onLoadSampleData,
+  onGoToScorecard,
+  onGoToSheet,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedEntrants, setExpandedEntrants] = useState<{ [key: string]: boolean }>({});
@@ -369,15 +371,25 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({
             <AlertCircle className="w-12 h-12 text-stone-300 mx-auto mb-3" />
             <h3 className="text-base font-bold text-stone-800">No score records found</h3>
             <p className="text-sm text-stone-500 max-w-md mx-auto mt-1">
-              There are no scores yet in this session or in your connected Google Sheet.
+              Connect your Google Sheet to pull your judges' scores, or start scoring the first song in the Judge Scorecard.
             </p>
-            <div className="mt-5 flex items-center justify-center gap-3">
-              <button
-                onClick={onLoadSampleData}
-                className="px-4 py-2 bg-[#2e514a] text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs hover:bg-[#23403a] transition-all cursor-pointer"
-              >
-                Load Sample Contest Scorecards
-              </button>
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+              {onGoToScorecard && (
+                <button
+                  onClick={onGoToScorecard}
+                  className="px-4 py-2 bg-[#2e514a] text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs hover:bg-[#23403a] transition-all cursor-pointer"
+                >
+                  + Score Song in Scorecard
+                </button>
+              )}
+              {onGoToSheet && (
+                <button
+                  onClick={onGoToSheet}
+                  className="px-4 py-2 border border-stone-300 bg-white text-stone-700 text-xs sm:text-sm font-bold rounded-xl shadow-xs hover:bg-stone-50 transition-all cursor-pointer"
+                >
+                  Connect Google Sheet
+                </button>
+              )}
             </div>
           </div>
         ) : (
