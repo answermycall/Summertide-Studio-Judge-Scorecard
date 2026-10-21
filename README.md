@@ -48,3 +48,15 @@ An independent judging portal and live aggregation system built for the **Summer
 ### 1. Install Dependencies
 ```bash
 npm install
+```
+
+### 2. Start the Development Server
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### 3. Connect to Google Sheets
+1. Sign in with your Google account.
+2. Under the **Google Sheet Sync** tab, select **Create Contest Sheet** or paste your existing Google Sheets link.
+3. Start entering scores to see automated rankings calculate in real time.

@@ -9,6 +9,31 @@
     <meta property="og:description" content="Live judging scorecard, Google Sheets sync, and automated ranking calculator for the Summertide Studio Lyric Contest." />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
+    <script>
+      // Compatibility fix for browser extensions attempting to assign window.fetch
+      try {
+        let _customFetch = window.fetch ? window.fetch.bind(window) : undefined;
+        Object.defineProperty(window, 'fetch', {
+          get() {
+            return _customFetch;
+          },
+          set(fn) {
+            _customFetch = fn;
+          },
+          configurable: true,
+          enumerable: true,
+        });
+      } catch (_e) {
+        // Ignore if descriptor already redefined
+      }
+
+      // Suppress extension-originated errors
+      window.addEventListener('error', (e) => {
+        if (e.filename && e.filename.startsWith('chrome-extension://')) {
+          e.preventDefault();
+        }
+      });
+    </script>
   </head>
   <body>
     <div id="root"></div>
