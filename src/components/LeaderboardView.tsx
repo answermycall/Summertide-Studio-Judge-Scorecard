@@ -136,7 +136,7 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({
             disabled={isSyncingRankings}
             className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm shadow-sm transition-all ${
               connectedSheet
-                ? 'bg-[#2563eb] hover:bg-[#1d4ed8] text-white hover:shadow-md'
+                ? 'bg-[#0284c7] hover:bg-[#0369a1] text-white hover:shadow-md'
                 : 'bg-emerald-700 hover:bg-emerald-800 text-white'
             } disabled:opacity-60 cursor-pointer`}
           >

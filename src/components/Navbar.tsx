@@ -12,12 +12,13 @@ import {
   Shield,
   Lock,
   Unlock,
+  Music,
 } from 'lucide-react';
 import { SpreadsheetInfo } from '../services/sheets';
 
 interface NavbarProps {
-  activeTab: 'rankings' | 'scores' | 'scorecard' | 'sheet' | 'admin';
-  setActiveTab: (tab: 'rankings' | 'scores' | 'scorecard' | 'sheet' | 'admin') => void;
+  activeTab: 'songs' | 'rankings' | 'scores' | 'scorecard' | 'sheet' | 'admin';
+  setActiveTab: (tab: 'songs' | 'rankings' | 'scores' | 'scorecard' | 'sheet' | 'admin') => void;
   user: User | null;
   isLoggingIn: boolean;
   onLogin: () => void;
@@ -29,6 +30,7 @@ interface NavbarProps {
   isAdmin: boolean;
   onRequestAdminUnlock: () => void;
   onLockAdmin: () => void;
+  pendingSongsCount?: number;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -45,11 +47,12 @@ export const Navbar: React.FC<NavbarProps> = ({
   isAdmin,
   onRequestAdminUnlock,
   onLockAdmin,
+  pendingSongsCount = 0,
 }) => {
   const logoUrl = `${import.meta.env.BASE_URL}assets/aistudio/hibiscus-flower-vector-logo_fbb8b643.png`;
 
   return (
-    <header className="bg-white border-b border-stone-200 sticky top-0 z-40 shadow-xs">
+    <header className="bg-white/95 backdrop-blur-md border-b border-stone-200 sticky top-0 z-40 shadow-xs">
       {/* Top Banner with Studio Brand & Auth */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
@@ -78,7 +81,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                     isAdmin
                       ? 'bg-amber-100 text-amber-900 border border-amber-200'
-                      : 'bg-pink-100 text-pink-900 border border-pink-200'
+                      : 'bg-sky-100 text-[#0284c7] border border-sky-200'
                   }`}
                 >
                   {isAdmin ? 'Producer / Admin Panel' : 'Judge Portal (Blind)'}
@@ -96,7 +99,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {isAdmin ? (
               <button
                 onClick={onLockAdmin}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 text-xs font-bold transition-all shadow-2xs"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 text-xs font-bold transition-all shadow-2xs cursor-pointer"
                 title="Lock Producer view and switch back to Judge mode"
               >
                 <Unlock className="w-3.5 h-3.5 text-amber-700" />
@@ -106,7 +109,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             ) : (
               <button
                 onClick={onRequestAdminUnlock}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-stone-200 bg-stone-50 hover:bg-stone-100 text-stone-700 text-xs font-bold transition-all shadow-2xs"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-stone-200 bg-stone-50 hover:bg-stone-100 text-stone-700 text-xs font-bold transition-all shadow-2xs cursor-pointer"
                 title="Enter Producer PIN to view leaderboard, all scores, and manage entries"
               >
                 <Lock className="w-3.5 h-3.5 text-stone-500" />
@@ -149,7 +152,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     className="w-7 h-7 rounded-full object-cover border border-stone-300"
                   />
                 ) : (
-                  <div className="w-7 h-7 rounded-full bg-[#426b63] text-white flex items-center justify-center text-xs font-bold">
+                  <div className="w-7 h-7 rounded-full bg-[#0284c7] text-white flex items-center justify-center text-xs font-bold">
                     {(user.displayName || user.email || 'J')[0].toUpperCase()}
                   </div>
                 )}
@@ -207,12 +210,36 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Tab Navigation */}
         <nav className="flex space-x-1 sm:space-x-3 overflow-x-auto py-2 -mb-px">
-          {/* Scorecard is always accessible to both judges and admin */}
+          {/* Song Entries Tab (Available to both judges and admin) */}
+          <button
+            onClick={() => setActiveTab('songs')}
+            className={`flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all border shrink-0 cursor-pointer ${
+              activeTab === 'songs'
+                ? 'bg-[#0284c7] text-white border-[#0284c7] shadow-xs hover:bg-[#0369a1]'
+                : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100 border-transparent'
+            }`}
+          >
+            <Music className="w-4 h-4" />
+            <span>Song Entries</span>
+            {pendingSongsCount > 0 && (
+              <span
+                className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full ${
+                  activeTab === 'songs'
+                    ? 'bg-white/20 text-white'
+                    : 'bg-sky-100 text-[#0284c7]'
+                }`}
+              >
+                {pendingSongsCount}
+              </span>
+            )}
+          </button>
+
+          {/* Scorecard */}
           <button
             onClick={() => setActiveTab('scorecard')}
-            className={`flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all border shrink-0 ${
+            className={`flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all border shrink-0 cursor-pointer ${
               activeTab === 'scorecard'
-                ? 'bg-[#2563eb] text-white border-[#2563eb] shadow-xs hover:bg-[#1d4ed8]'
+                ? 'bg-[#0284c7] text-white border-[#0284c7] shadow-xs hover:bg-[#0369a1]'
                 : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100 border-transparent'
             }`}
           >
@@ -228,9 +255,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             <>
               <button
                 onClick={() => setActiveTab('rankings')}
-                className={`flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all border shrink-0 ${
+                className={`flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all border shrink-0 cursor-pointer ${
                   activeTab === 'rankings'
-                    ? 'bg-[#2563eb] text-white border-[#2563eb] shadow-xs hover:bg-[#1d4ed8]'
+                    ? 'bg-[#0284c7] text-white border-[#0284c7] shadow-xs hover:bg-[#0369a1]'
                     : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100 border-transparent'
                 }`}
               >
@@ -240,9 +267,9 @@ export const Navbar: React.FC<NavbarProps> = ({
 
               <button
                 onClick={() => setActiveTab('scores')}
-                className={`flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all border shrink-0 ${
+                className={`flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all border shrink-0 cursor-pointer ${
                   activeTab === 'scores'
-                    ? 'bg-[#2563eb] text-white border-[#2563eb] shadow-xs hover:bg-[#1d4ed8]'
+                    ? 'bg-[#0284c7] text-white border-[#0284c7] shadow-xs hover:bg-[#0369a1]'
                     : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100 border-transparent'
                 }`}
               >
@@ -252,9 +279,9 @@ export const Navbar: React.FC<NavbarProps> = ({
 
               <button
                 onClick={() => setActiveTab('sheet')}
-                className={`flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all border shrink-0 ${
+                className={`flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all border shrink-0 cursor-pointer ${
                   activeTab === 'sheet'
-                    ? 'bg-[#2563eb] text-white border-[#2563eb] shadow-xs hover:bg-[#1d4ed8]'
+                    ? 'bg-[#0284c7] text-white border-[#0284c7] shadow-xs hover:bg-[#0369a1]'
                     : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100 border-transparent'
                 }`}
               >
@@ -269,9 +296,9 @@ export const Navbar: React.FC<NavbarProps> = ({
 
               <button
                 onClick={() => setActiveTab('admin')}
-                className={`flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all border shrink-0 ${
+                className={`flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all border shrink-0 cursor-pointer ${
                   activeTab === 'admin'
-                    ? 'bg-[#2563eb] text-white border-[#2563eb] shadow-xs hover:bg-[#1d4ed8]'
+                    ? 'bg-[#0284c7] text-white border-[#0284c7] shadow-xs hover:bg-[#0369a1]'
                     : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100 border-transparent'
                 }`}
               >
@@ -280,7 +307,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             </>
           ) : (
-            <div className="flex items-center text-xs text-stone-400 pl-2">
+            <div className="flex items-center text-xs text-stone-500 pl-2">
               <span className="italic">
                 (Blind Judging Mode active · Leaderboard hidden from judges)
               </span>

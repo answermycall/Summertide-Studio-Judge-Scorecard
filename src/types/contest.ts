@@ -54,6 +54,18 @@ export interface EntrantRanking {
   }[];
 }
 
+export interface ContestSongEntry {
+  id: string;
+  songTitle: string;
+  alias?: string;
+  discordUsername?: string;
+  storyConcept?: string;
+  lyrics?: string;
+  formattedEntrantName: string;
+  addedAt: string;
+  addedBy?: string;
+}
+
 export interface ContestSummaryStats {
   totalEntrants: number;
   totalJudges: number;

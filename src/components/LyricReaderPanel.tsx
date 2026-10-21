@@ -304,7 +304,7 @@ Just me and the open road.`;
 
           {/* Upload Button & Paste Button */}
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-            <label className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded-xl text-xs sm:text-sm font-bold shadow-xs cursor-pointer transition-all">
+            <label className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0284c7] hover:bg-[#0369a1] text-white rounded-xl text-xs sm:text-sm font-bold shadow-xs cursor-pointer transition-all">
               <Upload className="w-4 h-4" />
               <span>Upload .txt File</span>
               <input
@@ -384,7 +384,7 @@ Just me and the open road.`;
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#2563eb] text-white text-xs font-bold hover:bg-[#1d4ed8] shadow-xs cursor-pointer"
+                  className="px-5 py-2 rounded-xl bg-[#0284c7] text-white text-xs font-bold hover:bg-[#0369a1] shadow-xs cursor-pointer"
                 >
                   Auto-Fill & Display Lyrics
                 </button>

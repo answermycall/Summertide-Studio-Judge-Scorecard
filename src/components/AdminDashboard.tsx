@@ -193,9 +193,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       <div className="flex border-b border-stone-200 space-x-4">
         <button
           onClick={() => setActiveAdminTab('scores')}
-          className={`pb-3 text-sm font-bold border-b-2 transition-all ${
+          className={`pb-3 text-sm font-bold border-b-2 transition-all cursor-pointer ${
             activeAdminTab === 'scores'
-              ? 'border-[#2563eb] text-[#2563eb]'
+              ? 'border-[#0284c7] text-[#0284c7]'
               : 'border-transparent text-stone-500 hover:text-stone-800'
           }`}
         >
@@ -203,9 +203,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </button>
         <button
           onClick={() => setActiveAdminTab('entrants')}
-          className={`pb-3 text-sm font-bold border-b-2 transition-all ${
+          className={`pb-3 text-sm font-bold border-b-2 transition-all cursor-pointer ${
             activeAdminTab === 'entrants'
-              ? 'border-[#2563eb] text-[#2563eb]'
+              ? 'border-[#0284c7] text-[#0284c7]'
               : 'border-transparent text-stone-500 hover:text-stone-800'
           }`}
         >
@@ -213,9 +213,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </button>
         <button
           onClick={() => setActiveAdminTab('settings')}
-          className={`pb-3 text-sm font-bold border-b-2 transition-all ${
+          className={`pb-3 text-sm font-bold border-b-2 transition-all cursor-pointer ${
             activeAdminTab === 'settings'
-              ? 'border-[#2563eb] text-[#2563eb]'
+              ? 'border-[#0284c7] text-[#0284c7]'
               : 'border-transparent text-stone-500 hover:text-stone-800'
           }`}
         >
@@ -337,7 +337,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 >
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-extrabold text-[#2563eb] bg-blue-50 px-2 py-0.5 rounded-md">
+                      <span className="text-xs font-extrabold text-[#0284c7] bg-sky-50 px-2 py-0.5 rounded-md">
                         Rank #{entrant.rank}
                       </span>
                       <h4 className="font-bold text-stone-900 text-base">{entrant.entrantName}</h4>
@@ -424,7 +424,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <button
                 type="submit"
                 disabled={newPinInput.trim().length < 4}
-                className="px-4 py-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded-xl text-xs sm:text-sm font-bold shadow-xs transition-colors disabled:opacity-50 cursor-pointer"
+                className="px-4 py-2 bg-[#0284c7] hover:bg-[#0369a1] text-white rounded-xl text-xs sm:text-sm font-bold shadow-xs transition-colors disabled:opacity-50 cursor-pointer"
               >
                 Update PIN
               </button>
@@ -458,7 +458,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 type="text"
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
-                className="w-full px-3.5 py-2 rounded-xl border border-stone-300 text-stone-900 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                className="w-full px-3.5 py-2 rounded-xl border border-stone-300 text-stone-900 text-sm font-medium focus:ring-2 focus:ring-[#0284c7] focus:outline-hidden"
                 autoFocus
               />
             </div>
@@ -474,7 +474,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <button
                 type="button"
                 onClick={handleConfirmRename}
-                className="px-4 py-2 rounded-xl bg-[#2563eb] text-white text-xs font-bold hover:bg-[#1d4ed8] shadow-xs cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-[#0284c7] text-white text-xs font-bold hover:bg-[#0369a1] shadow-xs cursor-pointer"
               >
                 Save New Title
               </button>

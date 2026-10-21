@@ -215,7 +215,7 @@ export const SheetSettingsView: React.FC<SheetSettingsViewProps> = ({
                 <button
                   onClick={onRefreshFromSheet}
                   disabled={isProcessing}
-                  className="px-3 py-1.5 bg-[#2563eb] text-white rounded-lg font-bold hover:bg-[#1d4ed8] transition-colors shrink-0"
+                  className="px-3 py-1.5 bg-[#0284c7] text-white rounded-lg font-bold hover:bg-[#0369a1] transition-colors shrink-0"
                 >
                   Sync Now
                 </button>
@@ -232,7 +232,7 @@ export const SheetSettingsView: React.FC<SheetSettingsViewProps> = ({
           {/* Card 1: 1-Click Create New Sheet */}
           <div className="bg-white rounded-3xl border border-stone-200 shadow-sm p-6 sm:p-7 flex flex-col justify-between space-y-4">
             <div>
-              <div className="w-10 h-10 rounded-2xl bg-blue-50 text-[#2563eb] flex items-center justify-center mb-3">
+              <div className="w-10 h-10 rounded-2xl bg-sky-50 text-[#0284c7] flex items-center justify-center mb-3">
                 <Plus className="w-5 h-5 font-bold" />
               </div>
               <h3 className="text-lg font-bold text-stone-900">
@@ -253,7 +253,7 @@ export const SheetSettingsView: React.FC<SheetSettingsViewProps> = ({
                   value={newSheetTitle}
                   onChange={(e) => setNewSheetTitle(e.target.value)}
                   placeholder="Summertide Studio — Lyric Contest"
-                  className="w-full px-3.5 py-2 rounded-xl border border-stone-300 text-stone-900 text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                  className="w-full px-3.5 py-2 rounded-xl border border-stone-300 text-stone-900 text-xs font-medium focus:ring-2 focus:ring-[#0284c7] focus:outline-hidden"
                 />
               </div>
             </div>
@@ -261,7 +261,7 @@ export const SheetSettingsView: React.FC<SheetSettingsViewProps> = ({
             <button
               onClick={handleCreate}
               disabled={isProcessing || !user}
-              className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded-xl font-bold text-xs sm:text-sm shadow-xs transition-all disabled:opacity-50 cursor-pointer"
+              className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-[#0284c7] hover:bg-[#0369a1] text-white rounded-xl font-bold text-xs sm:text-sm shadow-xs transition-all disabled:opacity-50 cursor-pointer"
             >
               <Sparkles className="w-4 h-4" />
               <span>{isProcessing ? 'Creating Sheet...' : 'Create Contest Sheet in Drive'}</span>
@@ -330,7 +330,7 @@ export const SheetSettingsView: React.FC<SheetSettingsViewProps> = ({
         </h4>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
           <div className="p-4 rounded-2xl bg-white border border-stone-200 space-y-1.5">
-            <div className="w-6 h-6 rounded-full bg-blue-50 text-[#2563eb] font-black flex items-center justify-center text-xs">
+            <div className="w-6 h-6 rounded-full bg-sky-50 text-[#0284c7] font-black flex items-center justify-center text-xs">
               1
             </div>
             <div className="font-bold text-stone-900">Judges Submit Scorecards</div>
@@ -341,7 +341,7 @@ export const SheetSettingsView: React.FC<SheetSettingsViewProps> = ({
           </div>
 
           <div className="p-4 rounded-2xl bg-white border border-stone-200 space-y-1.5">
-            <div className="w-6 h-6 rounded-full bg-blue-50 text-[#2563eb] font-black flex items-center justify-center text-xs">
+            <div className="w-6 h-6 rounded-full bg-sky-50 text-[#0284c7] font-black flex items-center justify-center text-xs">
               2
             </div>
             <div className="font-bold text-stone-900">Automatic Ranking Engine</div>
@@ -352,7 +352,7 @@ export const SheetSettingsView: React.FC<SheetSettingsViewProps> = ({
           </div>
 
           <div className="p-4 rounded-2xl bg-white border border-stone-200 space-y-1.5">
-            <div className="w-6 h-6 rounded-full bg-blue-50 text-[#2563eb] font-black flex items-center justify-center text-xs">
+            <div className="w-6 h-6 rounded-full bg-sky-50 text-[#0284c7] font-black flex items-center justify-center text-xs">
               3
             </div>
             <div className="font-bold text-stone-900">Write Back to Spreadsheet</div>
