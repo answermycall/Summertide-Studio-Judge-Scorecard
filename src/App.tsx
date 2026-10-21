@@ -33,13 +33,23 @@ import { LeaderboardView } from './components/LeaderboardView';
 import { ScorecardView } from './components/ScorecardView';
 import { AllScoresMatrix } from './components/AllScoresMatrix';
 import { SheetSettingsView } from './components/SheetSettingsView';
+import { AdminDashboard } from './components/AdminDashboard';
 import { ConfirmModal } from './components/ConfirmModal';
-import { CheckCircle2, AlertCircle, X } from 'lucide-react';
+import { CheckCircle2, AlertCircle, X, Lock, KeyRound } from 'lucide-react';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'rankings' | 'scores' | 'scorecard' | 'sheet'>(
-    'rankings'
+  const [activeTab, setActiveTab] = useState<'rankings' | 'scores' | 'scorecard' | 'sheet' | 'admin'>(
+    'scorecard'
   );
+
+  // Producer / Admin State (Blind Judging by default if shared with judges)
+  const [isAdmin, setIsAdmin] = useState(true);
+  const [adminPin, setAdminPin] = useState(() => {
+    return localStorage.getItem('summertide_admin_pin') || '1234';
+  });
+  const [isPinModalOpen, setIsPinModalOpen] = useState(false);
+  const [enteredPin, setEnteredPin] = useState('');
+  const [pinError, setPinError] = useState<string | null>(null);
 
   // Authentication State
   const [user, setUser] = useState<User | null>(null);
@@ -84,6 +94,24 @@ export default function App() {
     setTimeout(() => {
       setToast((prev) => (prev?.message === message ? null : prev));
     }, 4500);
+  }, []);
+
+  // Check URL query parameters for ?role=judge
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('role') === 'judge') {
+      setIsAdmin(false);
+      setActiveTab('scorecard');
+    } else {
+      const savedAuth = sessionStorage.getItem('summertide_admin_unlocked');
+      if (savedAuth === 'false') {
+        setIsAdmin(false);
+        setActiveTab('scorecard');
+      } else {
+        setIsAdmin(true);
+        setActiveTab('rankings');
+      }
+    }
   }, []);
 
   // Initialize Firebase Auth listener on app load
@@ -146,7 +174,6 @@ export default function App() {
       setToken(cached);
       return cached;
     }
-    // Trigger sign in if token is missing
     try {
       const res = await googleSignIn();
       if (res) {
@@ -179,7 +206,6 @@ export default function App() {
       const meta = await fetchSpreadsheetMetadata(currentToken, id);
       setConnectedSheet(meta);
 
-      // Try reading raw scores tab
       const targetTab =
         meta.sheets.find((s) => s.title.toLowerCase().includes('score'))?.title ||
         meta.sheets[0]?.title ||
@@ -281,7 +307,6 @@ export default function App() {
 
   // Submit Scorecard
   const handleSubmitScore = async (submission: JudgeScoreSubmission): Promise<boolean> => {
-    // If a Google Sheet is connected, append the row to Google Sheets
     if (connectedSheet) {
       const currentToken = await ensureToken();
       if (currentToken) {
@@ -294,7 +319,6 @@ export default function App() {
       }
     }
 
-    // Update local state to immediately update leaderboard rankings
     setScores((prev) => [
       {
         ...submission,
@@ -310,25 +334,22 @@ export default function App() {
     return true;
   };
 
-  // Write Final Rankings to Google Sheet (With Workspace mandatory confirmation dialog)
+  // Write Final Rankings to Google Sheet
   const handleSyncRankingsToSheetRequest = () => {
     if (!connectedSheet) {
-      // If no sheet connected yet, switch to sheet tab
       setActiveTab('sheet');
       showToast('Connect or create a Google Sheet first to sync rankings.', 'info');
       return;
     }
 
-    // Workspace guidelines require explicit user confirmation for mutating spreadsheet data
     setConfirmModal({
       isOpen: true,
       title: 'Write Final Rankings to Google Sheet?',
-      message: `This will update the "Final Rankings" tab in spreadsheet "${connectedSheet.title}" with the current standings for ${rankings.length} entrants. Any prior ranking data in that tab will be replaced with fresh calculations.`,
+      message: `This will update the "Final Rankings" tab in spreadsheet "${connectedSheet.title}" with current standings for ${rankings.length} entrants.`,
       detailItems: [
         `Target Sheet: ${connectedSheet.title}`,
         `Destination Tab: Final Rankings`,
-        `Entrants to rank: ${rankings.length} (${stats.totalSubmissions} judge scorecards)`,
-        `Top ranked: ${rankings[0]?.entrantName || 'None'} (${rankings[0]?.averageScore.toFixed(2)} pts)`,
+        `Entrants to rank: ${rankings.length} (${stats.totalSubmissions} scorecards)`,
       ],
       confirmLabel: 'Yes, Write Rankings to Sheet',
       isDestructive: false,
@@ -355,13 +376,92 @@ export default function App() {
     });
   };
 
+  // Admin PIN Unlock
+  const handleUnlockAdmin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (enteredPin === adminPin) {
+      setIsAdmin(true);
+      sessionStorage.setItem('summertide_admin_unlocked', 'true');
+      setIsPinModalOpen(false);
+      setEnteredPin('');
+      setPinError(null);
+      setActiveTab('admin');
+      showToast('Producer Control Center unlocked.', 'success');
+    } else {
+      setPinError('Incorrect PIN. Please try again.');
+    }
+  };
+
+  const handleLockAdmin = () => {
+    setIsAdmin(false);
+    sessionStorage.setItem('summertide_admin_unlocked', 'false');
+    setActiveTab('scorecard');
+    showToast('Switched to Judge Mode (Blind). Leaderboard hidden from view.', 'info');
+  };
+
+  const handleUpdateAdminPin = (newPin: string) => {
+    setAdminPin(newPin);
+    localStorage.setItem('summertide_admin_pin', newPin);
+    showToast('Producer PIN updated successfully!', 'success');
+  };
+
+  // Admin: Delete a single score
+  const handleDeleteScore = (scoreId: string) => {
+    const target = scores.find((s, idx) => (s.id || `idx-${idx}`) === scoreId);
+    setConfirmModal({
+      isOpen: true,
+      title: 'Delete Scorecard?',
+      message: `Are you sure you want to delete the scorecard by ${target?.judgeName || 'this judge'} for "${target?.entrantName || 'this entry'}"? This action recalculates contest rankings.`,
+      confirmLabel: 'Delete Scorecard',
+      isDestructive: true,
+      action: async () => {
+        setScores((prev) => prev.filter((s, idx) => (s.id || `idx-${idx}`) !== scoreId));
+        setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+        showToast('Scorecard removed and rankings updated.', 'info');
+      },
+    });
+  };
+
+  // Admin: Delete an entire entrant and all their scores
+  const handleDeleteEntrant = (entrantName: string) => {
+    const affected = scores.filter(
+      (s) => s.entrantName.trim().toLowerCase() === entrantName.trim().toLowerCase()
+    );
+    setConfirmModal({
+      isOpen: true,
+      title: `Delete Entry "${entrantName}"?`,
+      message: `This will remove "${entrantName}" from the contest and permanently delete all ${affected.length} judge scorecard(s) associated with it.`,
+      confirmLabel: 'Delete Entry & All Scores',
+      isDestructive: true,
+      action: async () => {
+        setScores((prev) =>
+          prev.filter((s) => s.entrantName.trim().toLowerCase() !== entrantName.trim().toLowerCase())
+        );
+        setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+        showToast(`Removed "${entrantName}" and ${affected.length} scorecard(s).`, 'info');
+      },
+    });
+  };
+
+  // Admin: Rename an entrant across all historical scores
+  const handleRenameEntrant = (oldName: string, newName: string) => {
+    setScores((prev) =>
+      prev.map((s) =>
+        s.entrantName.trim().toLowerCase() === oldName.trim().toLowerCase()
+          ? { ...s, entrantName: newName }
+          : s
+      )
+    );
+    showToast(`Renamed "${oldName}" to "${newName}" across all scorecards.`, 'success');
+  };
+
   const handleOpenScorecardForEntrant = (name: string) => {
     setScorecardEntrantPreFill(name);
     setActiveTab('scorecard');
   };
 
   return (
-    <div className="min-h-screen bg-[#f5f6f8] text-[#20242d] font-sans antialiased flex flex-col selection:bg-[#9ec6b9] selection:text-[#20242d]">
+    <div className="min-h-screen bg-gradient-to-b from-white via-[#fff5f8] to-[#fce7f3] text-[#20242d] font-sans antialiased flex flex-col selection:bg-pink-200 selection:text-pink-900">
       {/* Navbar with Studio Header & Google Auth */}
       <Navbar
         activeTab={activeTab}
@@ -374,11 +474,31 @@ export default function App() {
         onRefreshFromSheet={handleRefreshFromSheet}
         isSyncing={isSyncing}
         hasUnsavedLocalScores={!connectedSheet && scores.length > 0}
+        isAdmin={isAdmin}
+        onRequestAdminUnlock={() => {
+          setPinError(null);
+          setEnteredPin('');
+          setIsPinModalOpen(true);
+        }}
+        onLockAdmin={handleLockAdmin}
       />
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {activeTab === 'rankings' && (
+        {activeTab === 'scorecard' && (
+          <ScorecardView
+            initialEntrantName={scorecardEntrantPreFill}
+            defaultJudgeName={user?.displayName || ''}
+            connectedSheet={connectedSheet}
+            onSubmitScore={handleSubmitScore}
+            isSubmitting={isSyncing}
+            knownJudges={knownJudges}
+            knownEntrants={knownEntrants}
+            existingScores={scores}
+          />
+        )}
+
+        {isAdmin && activeTab === 'rankings' && (
           <LeaderboardView
             rankings={rankings}
             stats={stats}
@@ -393,7 +513,7 @@ export default function App() {
           />
         )}
 
-        {activeTab === 'scores' && (
+        {isAdmin && activeTab === 'scores' && (
           <AllScoresMatrix
             scores={scores}
             onOpenScorecardForEntrant={handleOpenScorecardForEntrant}
@@ -401,19 +521,7 @@ export default function App() {
           />
         )}
 
-        {activeTab === 'scorecard' && (
-          <ScorecardView
-            initialEntrantName={scorecardEntrantPreFill}
-            defaultJudgeName={user?.displayName || ''}
-            connectedSheet={connectedSheet}
-            onSubmitScore={handleSubmitScore}
-            isSubmitting={isSyncing}
-            knownJudges={knownJudges}
-            knownEntrants={knownEntrants}
-          />
-        )}
-
-        {activeTab === 'sheet' && (
+        {isAdmin && activeTab === 'sheet' && (
           <SheetSettingsView
             user={user}
             onLogin={handleLogin}
@@ -428,7 +536,86 @@ export default function App() {
             setRawSheetTitle={setRawSheetTitle}
           />
         )}
+
+        {isAdmin && activeTab === 'admin' && (
+          <AdminDashboard
+            scores={scores}
+            rankings={rankings}
+            connectedSheet={connectedSheet}
+            onDeleteScore={handleDeleteScore}
+            onDeleteEntrant={handleDeleteEntrant}
+            onRenameEntrant={handleRenameEntrant}
+            onSyncRankingsToSheet={handleSyncRankingsToSheetRequest}
+            isSyncingRankings={isSyncingRankings}
+            adminPin={adminPin}
+            onUpdateAdminPin={handleUpdateAdminPin}
+            onSwitchToJudgeMode={handleLockAdmin}
+          />
+        )}
       </main>
+
+      {/* Admin Unlock PIN Modal */}
+      {isPinModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="w-full max-w-sm bg-white rounded-3xl border border-stone-200 shadow-2xl p-6 text-stone-900">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-10 h-10 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center">
+                <KeyRound className="w-5 h-5" />
+              </div>
+              <button
+                onClick={() => setIsPinModalOpen(false)}
+                className="text-stone-400 hover:text-stone-600 p-1 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <h3 className="text-lg font-bold text-stone-900">Producer Access</h3>
+            <p className="text-xs text-stone-500 mt-1">
+              Enter your Producer PIN to unlock the live leaderboard, all scores matrix, and
+              administrative controls. (Default: <code>1234</code>)
+            </p>
+
+            <form onSubmit={handleUnlockAdmin} className="mt-4 space-y-4">
+              <div>
+                <input
+                  type="password"
+                  maxLength={8}
+                  value={enteredPin}
+                  onChange={(e) => {
+                    setEnteredPin(e.target.value);
+                    setPinError(null);
+                  }}
+                  placeholder="Enter 4-digit PIN"
+                  className="w-full text-center text-xl tracking-widest font-mono py-2.5 px-3 bg-stone-50 border border-stone-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                  autoFocus
+                />
+                {pinError && (
+                  <p className="text-xs text-rose-600 font-semibold mt-1.5 text-center">
+                    {pinError}
+                  </p>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsPinModalOpen(false)}
+                  className="flex-1 py-2.5 border border-stone-300 rounded-xl text-xs font-bold text-stone-700 hover:bg-stone-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded-xl text-xs font-bold shadow-xs transition-colors cursor-pointer"
+                >
+                  Unlock
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Confirmation Modal for Google Sheets Mutating Operations */}
       <ConfirmModal
@@ -466,9 +653,9 @@ export default function App() {
       {/* Footer */}
       <footer className="border-t border-stone-200 bg-white py-4 text-center text-xs text-stone-500">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <div>Summertide Studio Lyric Contest · Independent Producer Scoring Engine</div>
+          <div>Summertide Studio Lyric Contest · Producer & Judging System</div>
           <div className="text-stone-400">
-            Four criteria · Maximum awardable total: 96/100 per judge · Google Sheets Live Sync
+            Four criteria · Maximum awardable: 96/100 · Google Sheets Live Sync
           </div>
         </div>
       </footer>

@@ -136,7 +136,7 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({
             disabled={isSyncingRankings}
             className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm shadow-sm transition-all ${
               connectedSheet
-                ? 'bg-[#2e514a] hover:bg-[#23403a] text-white hover:shadow-md'
+                ? 'bg-[#2563eb] hover:bg-[#1d4ed8] text-white hover:shadow-md'
                 : 'bg-emerald-700 hover:bg-emerald-800 text-white'
             } disabled:opacity-60 cursor-pointer`}
           >
@@ -196,7 +196,7 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({
           <div className="text-xs font-bold text-stone-500 uppercase tracking-wide">
             Participating Judges
           </div>
-          <div className="text-2xl sm:text-3xl font-extrabold text-[#2e514a] mt-1">
+          <div className="text-2xl sm:text-3xl font-extrabold text-[#2563eb] mt-1">
             {stats.totalJudges}
           </div>
           <div className="text-xs text-stone-500 mt-1">
@@ -377,7 +377,7 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({
               {onGoToScorecard && (
                 <button
                   onClick={onGoToScorecard}
-                  className="px-4 py-2 bg-[#2e514a] text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs hover:bg-[#23403a] transition-all cursor-pointer"
+                  className="px-4 py-2 bg-[#2563eb] text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs hover:bg-[#1d4ed8] transition-all cursor-pointer"
                 >
                   + Score Song in Scorecard
                 </button>
@@ -527,12 +527,21 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({
                                 {onOpenScorecardForEntrant && (
                                   <button
                                     onClick={() => onOpenScorecardForEntrant(entrant.entrantName)}
-                                    className="text-xs font-bold text-[#426b63] hover:text-[#2e514a] underline"
+                                    className="text-xs font-bold text-blue-600 hover:text-blue-800 underline"
                                   >
                                     + Add New Scorecard for this Entrant
                                   </button>
                                 )}
                               </div>
+
+                              {entrant.storyConcept && (
+                                <div className="p-3 bg-amber-50/80 border-l-3 border-[#c28c3b] rounded-r-xl text-xs text-[#5e4a2f]">
+                                  <span className="font-bold text-[#91621f] block text-[10px] uppercase tracking-wider mb-0.5">
+                                    Story & Concept Inspiration:
+                                  </span>
+                                  “{entrant.storyConcept}”
+                                </div>
+                              )}
 
                               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                                 {entrant.judgeBreakdowns.map((jb, jIdx) => (

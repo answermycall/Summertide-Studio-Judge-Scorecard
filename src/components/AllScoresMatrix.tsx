@@ -194,7 +194,7 @@ export const AllScoresMatrix: React.FC<AllScoresMatrixProps> = ({
             <div className="mt-5">
               <button
                 onClick={onGoToScorecard}
-                className="px-4 py-2 bg-[#2e514a] text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs hover:bg-[#23403a] transition-all cursor-pointer"
+                className="px-4 py-2 bg-[#2563eb] text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs hover:bg-[#1d4ed8] transition-all cursor-pointer"
               >
                 + Go to Judge Scorecard
               </button>
@@ -289,7 +289,7 @@ export const AllScoresMatrix: React.FC<AllScoresMatrixProps> = ({
                       <td className="py-4 pr-4 sm:pr-6 pl-2 text-right">
                         <button
                           onClick={() => onOpenScorecardForEntrant(entrantName)}
-                          className="text-xs font-bold text-[#426b63] hover:text-[#2e514a] p-1.5 hover:bg-stone-100 rounded-lg transition-colors inline-flex items-center gap-1"
+                          className="text-xs font-bold text-blue-600 hover:text-blue-800 p-1.5 hover:bg-stone-100 rounded-lg transition-colors inline-flex items-center gap-1"
                         >
                           <Sliders className="w-3.5 h-3.5" />
                           <span className="hidden sm:inline">Score</span>

@@ -63,8 +63,15 @@ export function calculateRankings(scores: JudgeScoreSubmission[]): EntrantRankin
     const emotionAvg = judgeCount > 0 ? emotionSum / judgeCount : 0;
     const structureAvg = judgeCount > 0 ? structSum / judgeCount : 0;
 
+    const firstWithMetadata = entrantScores.find((s) => s.lyrics || s.songTitle || s.alias);
+
     return {
       entrantName,
+      songTitle: firstWithMetadata?.songTitle,
+      alias: firstWithMetadata?.alias,
+      discordUsername: firstWithMetadata?.discordUsername,
+      storyConcept: firstWithMetadata?.storyConcept,
+      lyrics: firstWithMetadata?.lyrics,
       judgeCount,
       totalPoints,
       averageScore,

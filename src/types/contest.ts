@@ -10,6 +10,11 @@ export interface JudgeScoreSubmission {
   timestamp: string;
   judgeName: string;
   entrantName: string;
+  songTitle?: string;
+  alias?: string;
+  discordUsername?: string;
+  storyConcept?: string;
+  lyrics?: string;
   comments: string;
   writing: number;
   originality: number;
@@ -23,6 +28,11 @@ export interface JudgeScoreSubmission {
 export interface EntrantRanking {
   rank: number;
   entrantName: string;
+  songTitle?: string;
+  alias?: string;
+  discordUsername?: string;
+  storyConcept?: string;
+  lyrics?: string;
   judgeCount: number;
   totalPoints: number;
   averageScore: number;

@@ -9,12 +9,15 @@ import {
   ExternalLink,
   CheckCircle2,
   RefreshCw,
+  Shield,
+  Lock,
+  Unlock,
 } from 'lucide-react';
 import { SpreadsheetInfo } from '../services/sheets';
 
 interface NavbarProps {
-  activeTab: 'rankings' | 'scores' | 'scorecard' | 'sheet';
-  setActiveTab: (tab: 'rankings' | 'scores' | 'scorecard' | 'sheet') => void;
+  activeTab: 'rankings' | 'scores' | 'scorecard' | 'sheet' | 'admin';
+  setActiveTab: (tab: 'rankings' | 'scores' | 'scorecard' | 'sheet' | 'admin') => void;
   user: User | null;
   isLoggingIn: boolean;
   onLogin: () => void;
@@ -23,6 +26,9 @@ interface NavbarProps {
   onRefreshFromSheet: () => void;
   isSyncing: boolean;
   hasUnsavedLocalScores: boolean;
+  isAdmin: boolean;
+  onRequestAdminUnlock: () => void;
+  onLockAdmin: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -36,37 +42,82 @@ export const Navbar: React.FC<NavbarProps> = ({
   onRefreshFromSheet,
   isSyncing,
   hasUnsavedLocalScores,
+  isAdmin,
+  onRequestAdminUnlock,
+  onLockAdmin,
 }) => {
+  const logoUrl = `${import.meta.env.BASE_URL}assets/aistudio/hibiscus-flower-vector-logo_fbb8b643.png`;
+
   return (
     <header className="bg-white border-b border-stone-200 sticky top-0 z-40 shadow-xs">
       {/* Top Banner with Studio Brand & Auth */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#2e514a] to-[#426b63] flex items-center justify-center text-white shadow-sm font-black text-lg">
-              S
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-pink-50 to-pink-100/80 border border-pink-200/90 flex items-center justify-center p-1 shadow-xs overflow-hidden shrink-0">
+              <div
+                className="w-8 h-8 bg-gradient-to-tr from-[#ec4899] via-[#f43f5e] to-[#fb7185] transition-transform hover:scale-105"
+                style={{
+                  maskImage: `url(${logoUrl})`,
+                  WebkitMaskImage: `url(${logoUrl})`,
+                  maskSize: 'contain',
+                  WebkitMaskSize: 'contain',
+                  maskRepeat: 'no-repeat',
+                  WebkitMaskRepeat: 'no-repeat',
+                  maskPosition: 'center',
+                  WebkitMaskPosition: 'center',
+                }}
+              />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-[#426b63]">
+                <span className="text-xs font-bold uppercase tracking-wider text-pink-600">
                   Summertide Studio
                 </span>
-                <span className="text-[10px] bg-[#eaf2ef] text-[#2e514a] font-bold px-2 py-0.5 rounded-full">
-                  Lyric Contest Panel
+                <span
+                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                    isAdmin
+                      ? 'bg-amber-100 text-amber-900 border border-amber-200'
+                      : 'bg-pink-100 text-pink-900 border border-pink-200'
+                  }`}
+                >
+                  {isAdmin ? 'Producer / Admin Panel' : 'Judge Portal (Blind)'}
                 </span>
               </div>
               <h1 className="text-base sm:text-lg font-bold text-stone-900 tracking-tight leading-none mt-0.5">
-                Judge Scorecards & Final Rankings
+                Lyric Contest Judging Portal
               </h1>
             </div>
           </div>
 
           {/* Right Action Area */}
-          <div className="flex items-center gap-3">
-            {connectedSheet && (
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Admin Lock / Unlock Toggle */}
+            {isAdmin ? (
+              <button
+                onClick={onLockAdmin}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 text-xs font-bold transition-all shadow-2xs"
+                title="Lock Producer view and switch back to Judge mode"
+              >
+                <Unlock className="w-3.5 h-3.5 text-amber-700" />
+                <span className="hidden sm:inline">Admin Mode</span>
+                <span className="text-[10px] text-amber-700 underline ml-0.5">Lock</span>
+              </button>
+            ) : (
+              <button
+                onClick={onRequestAdminUnlock}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-stone-200 bg-stone-50 hover:bg-stone-100 text-stone-700 text-xs font-bold transition-all shadow-2xs"
+                title="Enter Producer PIN to view leaderboard, all scores, and manage entries"
+              >
+                <Lock className="w-3.5 h-3.5 text-stone-500" />
+                <span>Producer Access</span>
+              </button>
+            )}
+
+            {connectedSheet && isAdmin && (
               <div className="hidden md:flex items-center gap-2 bg-emerald-50 border border-emerald-200/80 rounded-lg px-3 py-1.5 text-xs">
                 <FileSpreadsheet className="w-4 h-4 text-emerald-700 shrink-0" />
-                <span className="font-medium text-emerald-900 truncate max-w-[140px]">
+                <span className="font-medium text-emerald-900 truncate max-w-[130px]">
                   {connectedSheet.title}
                 </span>
                 <button
@@ -103,7 +154,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   </div>
                 )}
                 <div className="hidden sm:block text-left">
-                  <div className="text-xs font-semibold text-stone-900 truncate max-w-[120px]">
+                  <div className="text-xs font-semibold text-stone-900 truncate max-w-[110px]">
                     {user.displayName || user.email?.split('@')[0]}
                   </div>
                   <div className="text-[10px] text-stone-500 flex items-center gap-1">
@@ -123,10 +174,10 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 onClick={onLogin}
                 disabled={isLoggingIn}
-                className="inline-flex items-center justify-center gap-2.5 px-4 py-2 bg-white hover:bg-stone-50 text-stone-700 border border-stone-300 rounded-xl text-xs sm:text-sm font-semibold shadow-xs transition-all hover:shadow-sm disabled:opacity-60 cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-white hover:bg-stone-50 text-stone-700 border border-stone-300 rounded-xl text-xs sm:text-sm font-semibold shadow-xs transition-all hover:shadow-sm disabled:opacity-60 cursor-pointer"
                 aria-label="Sign in with Google"
               >
-                <svg className="w-4 h-4" viewBox="0 0 48 48">
+                <svg className="w-4 h-4 shrink-0" viewBox="0 0 48 48">
                   <path
                     fill="#EA4335"
                     d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
@@ -145,7 +196,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                   />
                   <path fill="none" d="M0 0h48v48H0z" />
                 </svg>
-                <span>{isLoggingIn ? 'Connecting...' : 'Sign in with Google'}</span>
+                <span className="hidden sm:inline">
+                  {isLoggingIn ? 'Connecting...' : 'Sign in with Google'}
+                </span>
+                <span className="sm:hidden">Sign In</span>
               </button>
             )}
           </div>
@@ -153,35 +207,12 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Tab Navigation */}
         <nav className="flex space-x-1 sm:space-x-3 overflow-x-auto py-2 -mb-px">
-          <button
-            onClick={() => setActiveTab('rankings')}
-            className={`flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all border ${
-              activeTab === 'rankings'
-                ? 'bg-[#2e514a] text-white border-[#2e514a] shadow-xs'
-                : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100 border-transparent'
-            }`}
-          >
-            <Trophy className="w-4 h-4 text-amber-300" />
-            <span>Final Rankings & Podium</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('scores')}
-            className={`flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all border ${
-              activeTab === 'scores'
-                ? 'bg-[#2e514a] text-white border-[#2e514a] shadow-xs'
-                : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100 border-transparent'
-            }`}
-          >
-            <Table className="w-4 h-4" />
-            <span>All Judges' Scores</span>
-          </button>
-
+          {/* Scorecard is always accessible to both judges and admin */}
           <button
             onClick={() => setActiveTab('scorecard')}
-            className={`flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all border ${
+            className={`flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all border shrink-0 ${
               activeTab === 'scorecard'
-                ? 'bg-[#2e514a] text-white border-[#2e514a] shadow-xs'
+                ? 'bg-[#2563eb] text-white border-[#2563eb] shadow-xs hover:bg-[#1d4ed8]'
                 : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100 border-transparent'
             }`}
           >
@@ -192,26 +223,69 @@ export const Navbar: React.FC<NavbarProps> = ({
             )}
           </button>
 
-          <button
-            onClick={() => setActiveTab('sheet')}
-            className={`flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all border ${
-              activeTab === 'sheet'
-                ? 'bg-[#2e514a] text-white border-[#2e514a] shadow-xs'
-                : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100 border-transparent'
-            }`}
-          >
-            <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-            <span>Google Sheet Sync</span>
-            {connectedSheet ? (
-              <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.2 rounded-full">
-                Connected
+          {/* Producer / Admin Protected Tabs */}
+          {isAdmin ? (
+            <>
+              <button
+                onClick={() => setActiveTab('rankings')}
+                className={`flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all border shrink-0 ${
+                  activeTab === 'rankings'
+                    ? 'bg-[#2563eb] text-white border-[#2563eb] shadow-xs hover:bg-[#1d4ed8]'
+                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100 border-transparent'
+                }`}
+              >
+                <Trophy className="w-4 h-4 text-amber-300" />
+                <span>Final Rankings & Podium</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('scores')}
+                className={`flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all border shrink-0 ${
+                  activeTab === 'scores'
+                    ? 'bg-[#2563eb] text-white border-[#2563eb] shadow-xs hover:bg-[#1d4ed8]'
+                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100 border-transparent'
+                }`}
+              >
+                <Table className="w-4 h-4" />
+                <span>All Judges' Scores</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('sheet')}
+                className={`flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all border shrink-0 ${
+                  activeTab === 'sheet'
+                    ? 'bg-[#2563eb] text-white border-[#2563eb] shadow-xs hover:bg-[#1d4ed8]'
+                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100 border-transparent'
+                }`}
+              >
+                <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+                <span>Google Sheet Sync</span>
+                {connectedSheet && (
+                  <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.2 rounded-full">
+                    Connected
+                  </span>
+                )}
+              </button>
+
+              <button
+                onClick={() => setActiveTab('admin')}
+                className={`flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all border shrink-0 ${
+                  activeTab === 'admin'
+                    ? 'bg-[#2563eb] text-white border-[#2563eb] shadow-xs hover:bg-[#1d4ed8]'
+                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100 border-transparent'
+                }`}
+              >
+                <Shield className="w-4 h-4 text-amber-400" />
+                <span>Admin Control</span>
+              </button>
+            </>
+          ) : (
+            <div className="flex items-center text-xs text-stone-400 pl-2">
+              <span className="italic">
+                (Blind Judging Mode active · Leaderboard hidden from judges)
               </span>
-            ) : (
-              <span className="text-[10px] bg-stone-200 text-stone-600 font-bold px-1.5 py-0.2 rounded-full">
-                Setup
-              </span>
-            )}
-          </button>
+            </div>
+          )}
         </nav>
       </div>
     </header>
